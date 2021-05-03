@@ -1,0 +1,45 @@
+package com.cos.mariademo.web;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.cos.mariademo.domain.Board;
+import com.cos.mariademo.domain.MongoUsers;
+import com.cos.mariademo.domain.MongoUsersRepository;
+import com.cos.mariademo.domain.Users;
+import com.cos.mariademo.domain.UsersRepository;
+import com.cos.mariademo.web.dto.CMRespDto;
+
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+@RestController
+public class MongoUsersController {
+
+	private final UsersRepository usersRepository;
+	private final MongoUsersRepository mongoUsersRepository;
+
+	@GetMapping("/mig/mongoUsers")
+	public CMRespDto<?> migUsers() {
+
+		// MariaDB 데이터 가져오기
+		List<Users> usersList = usersRepository.findAll();
+		
+		
+
+		// MongoDB에 넣기 위해 파싱
+		List<MongoUsers> collection = usersList.stream().map((u) -> {
+			return MongoUsers.builder().id(u.getId()).username(u.getUsername()).password(u.getPassword())
+					.boards(u.getBoards()).build();
+		}).collect(Collectors.toList());
+
+
+		// MongoDB에 save하기
+		MongoUsers mongoUsers = mongoUsersRepository.save(new MongoUsers(1L, "ssar", "1234", null));
+ 
+		return new CMRespDto<>(1, collection);
+	}
+}

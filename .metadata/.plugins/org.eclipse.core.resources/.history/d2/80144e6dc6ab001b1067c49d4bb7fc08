@@ -1,0 +1,21 @@
+package com.cos.mariademo.batch;
+
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+
+@Component
+public class MigrationTask {
+
+
+//	@Scheduled(fixedDelay = 1000)
+//	public void test() {
+//		System.out.println("실행됨");
+//	}
+	
+	// 초 분 시간 일 월 주
+	@Scheduled(cron = "0 14 13 * * *", zone = "Asia/Seoul")
+	public void mariaToMongo() {
+		
+	}
+}

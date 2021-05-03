@@ -1,0 +1,37 @@
+package com.cos.mariademo.batch;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import com.cos.mariademo.domain.MongoUsers;
+import com.cos.mariademo.domain.MongoUsersRepository;
+import com.cos.mariademo.domain.Users;
+import com.cos.mariademo.domain.UsersRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+@Component
+public class MigrationTask {
+	private final UsersRepository usersRepository;
+	private final MongoUsersRepository mongoUsersRepository;
+
+	// 초 분 시간 일 월 주
+	@Scheduled(cron = "0 6 13 * * *", zone = "Asia/Seoul")
+	public void mariaToMongo() {
+		// MariaDB 데이터 가져오기
+		List<Users> usersList = usersRepository.findAll();
+
+		// MongoDB에 넣기 위해 파싱
+		List<MongoUsers> mongoUsersList = usersList.stream().map((u) -> {
+			return MongoUsers.builder().id(u.getId()).username(u.getUsername()).password(u.getPassword())
+					.boards(u.getBoards()).build();
+		}).collect(Collectors.toList());
+
+		// MongoDB에 save하기
+		mongoUsersRepository.saveAll(mongoUsersList);
+	}
+}

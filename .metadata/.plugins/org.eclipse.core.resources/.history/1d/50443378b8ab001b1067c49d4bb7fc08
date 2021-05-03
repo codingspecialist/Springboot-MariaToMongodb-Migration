@@ -1,0 +1,5 @@
+package com.cos.mariademo.web;
+
+public class MigController {
+
+}
